@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.boreum.mapper.UserMapper">
+ 	
+ 	
+	<resultMap id="userSelectMap" type="com.boreum.service.domain.User">
+		<result property="user_no" 			column="user_no" 			jdbcType="VARCHAR"/>
+		<result property="kor_name"			column="kor_name" 			jdbcType="VARCHAR" />
+		<result property="ENG_NAME" 		column="ENG_NAME" 			jdbcType="VARCHAR" />
+		<result property="HAN_NAME" 			column="HAN_NAME" 			jdbcType="VARCHAR" />
+		<result property="JUMIN_NO" 				column="JUMIN_NO" 			jdbcType="VARCHAR" />
+		<result property="SAJIN_NM" 			column="SAJIN_NM" 			jdbcType="VARCHAR" />
+		<result property="BIRTH_YMD" 			column="BIRTH_YMD" 			jdbcType="VARCHAR" />
+		<result property="BIRTH_RN" 			column="BIRTH_RN" 			jdbcType="VARCHAR"  />
+		<result property="SEX" 			column="SEX" 				jdbcType="VARCHAR" />
+		<result property="MARRY_YN" 			column="MARRY_YN" 			jdbcType="VARCHAR" />
+		<result property="WORK_YEAR" 			column="WORK_YEAR" 			jdbcType="VARCHAR" />
+		<result property="JOIN_ST" 			column="JOIN_ST" 			jdbcType="VARCHAR" />
+		<result property="HOPE_WORK" 			column="HOPE_WORK" 			jdbcType="VARCHAR" />
+		<result property="ADDR" 			column="ADDR" 				jdbcType="VARCHAR" />
+		<result property="TEL" 			column="TEL" 				jdbcType="VARCHAR" />
+		<result property="EMAIL" 			column="EMAIL" 				jdbcType="VARCHAR" />
+		<result property="TECH_GRD" 			column="TECH_GRD" 			jdbcType="VARCHAR" />
+		<result property="ALC_QT" 			column="ALC_QT" 			jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<resultMap type="com.boreum.service.domain.Miform" id="miformMap">
+		<result property="testinsp" 			column="testinsp" 			jdbcType="VARCHAR"/>
+		<result property="testfiled" 			column="testfiled" 			jdbcType="VARCHAR"/>
+		<result property="filedcode" 			column="filedcode" 			jdbcType="VARCHAR"/>
+		<result property="formattype" 			column="formattype" 		jdbcType="VARCHAR"/>
+		<result property="coltype" 				column="coltype" 			jdbcType="VARCHAR"/>
+		<result property="colcode" 				column="colcode" 			jdbcType="VARCHAR"/>
+		<result property="displyorder" 			column="displyorder" 		jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- SQL : INSERT -->
+	<insert 	id="insert"		parameterType="com.boreum.service.domain.User" >
+	 	INSERT 
+		INTO IS_MATER ( user_no, kor_name, eng_name, han_name, jumin_no, sajin_nm, birth_ymd, birth_rn,sex, marry_yn, work_year, join_st, hope_work, addr, tel, email, tech_grd, alc_QT) 
+		VALUES ( seq_user_no.nextval, 
+		#{kor_name:VARCHAR}, 
+		#{ENG_NAME:VARCHAR}, 
+		#{HAN_NAME:VARCHAR},
+		#{JUMIN_NO:VARCHAR},
+		#{SAJIN_NM:VARCHAR},
+		#{BIRTH_YMD:VARCHAR},
+		#{BIRTH_RN:VARCHAR},
+		#{SEX:VARCHAR},
+		#{MARRY_YN:VARCHAR},
+		#{WORK_YEAR:VARCHAR},
+		#{JOIN_ST:VARCHAR},
+		#{HOPE_WORK:VARCHAR},
+		#{ADDR:VARCHAR},
+		#{TEL:VARCHAR},
+		#{EMAIL:VARCHAR},
+		#{TECH_GRD:VARCHAR},
+		#{ALC_QT:VARCHAR})
+	 </insert>
+	 
+	 <!-- SQL : SELECT ONE -->
+	 <select 	id="list"	parameterType="string"	resultMap="userSelectMap">
+		SELECT*from IS_MATER
+	 </select>
+	 
+	 <select 	id="getUser"	parameterType="string"	resultMap="userSelectMap">
+		SELECT*from IS_MATER
+		where user_no =#{value}
+	 </select>
+	 
+	 <!-- SQL : UPDATE -->
+	 <update	id="updateProfile"	parameterType="com.boreum.service.domain.User" >
+	   	UPDATE IS_MATER
+	   	<set>
+			kor_name	= #{kor_name:VARCHAR},
+			ENG_NAME 	= #{ENG_NAME:VARCHAR} ,
+			HAN_NAME	= #{HAN_NAME:VARCHAR},
+			JUMIN_NO	= #{JUMIN_NO:VARCHAR},
+			SAJIN_NM	= #{SAJIN_NM:VARCHAR},
+			BIRTH_YMD	= #{BIRTH_YMD:VARCHAR},
+			BIRTH_RN	= #{BIRTH_RN:VARCHAR},
+			SEX			= #{SEX:VARCHAR},
+			MARRY_YN	= #{MARRY_YN:VARCHAR},
+			WORK_YEAR	= #{WORK_YEAR:VARCHAR},
+			JOIN_ST		= #{JOIN_ST:VARCHAR},
+			HOPE_WORK	= #{HOPE_WORK:VARCHAR},
+			ADDR		= #{ADDR:VARCHAR},
+			TEL		    = #{TEL:VARCHAR},
+			EMAIL		= #{EMAIL:VARCHAR},
+			TECH_GRD	= #{TECH_GRD:VARCHAR},
+			ALC_QT		= #{ALC_QT:VARCHAR},
+			
+			
+			
+	   	</set>
+	   	WHERE user_no = #{user_no}
+	 </update>
+		 
+	<!-- SQL : SELECT LIST -->
+	<select  id="getUserList"  parameterType="com.boreum.common.Search"	resultMap="userSelectMap">
+	  	SELECT *
+	  	FROM (	SELECT inner_table.* , ROWNUM AS row_seq
+	  					FROM		(	SELECT user_id , user_name , email
+											FROM users
+											<if test="searchCondition != null">
+												<where>
+													<if test="searchCondition == 0 and searchKeyword !='' ">
+										 				user_id = #{searchKeyword}
+													</if>
+													<if test="searchCondition == 1 and searchKeyword !='' ">
+										 				user_name = #{searchKeyword}
+													</if>
+												</where>
+											</if>
+											ORDER BY user_id ) inner_table
+						WHERE ROWNUM &lt;= #{endRowNum} )
+		WHERE row_seq BETWEEN #{startRowNum} AND #{endRowNum} 
+	 </select>
+	 	<!--  위 두번째 subQuery 의  
+	 			WHERE ROWNUM &lt;= #{endRowNum} ) 는
+	 			WHERE ROWNUM <= #{endRowNum} ) 의미이며..
+	 			< 는 keyword 로 &lt; 를	사용.
+	 			
+	 			<![CDATA[  ~~~  ]]> 를 이용하여 아래와 같이 사용  할 수 있다.
+	 			CDATA ==> Character Data 의 의미 Java 에서 \n 같은 특수문자 처리  
+
+				WHERE ROWNUM <![CDATA[ <=]]> #{endRowNum} )
+		-->
+	
+	<!-- SQL : SELECT ROW Count -->	 
+	 <select  id="getTotalCount"  parameterType="com.boreum.common.Search"	 resultType="int">
+	  	SELECT COUNT(*)
+	  	FROM(	SELECT user_id , user_name , email
+						FROM users
+						<if test="searchCondition != null">
+							<where>
+								<if test="searchCondition == 0 and searchKeyword !='' ">
+						 			user_id = #{searchKeyword}
+								</if>
+								<if test="searchCondition == 1 and searchKeyword !='' ">
+						 		user_name = #{searchKeyword}
+								</if>
+							</where>
+						</if> ) countTable						
+	 </select>
+	 
+	 <select 	id="listMi"	parameterType="string"	resultMap="miformMap">
+		SELECT*from miform
+	 </select>
+	 
+	 <insert 	id="insertMi"		parameterType="com.boreum.service.domain.Miform" >
+	 	INSERT 
+		INTO miform ( testinsp, testfiled, filedcode, formattype, coltype, colcode, displyorder)  
+		VALUES ( 
+		#{testinsp:VARCHAR}, 
+		#{testfiled:VARCHAR}, 
+		#{filedcode:VARCHAR},
+		#{formattype:VARCHAR},
+		#{coltype:VARCHAR},
+		#{colcode:VARCHAR},
+		seq_displyorder.nextval
+		)
+	 </insert>
+	 
+	 <delete id="deleteMi" parameterType="string">
+	 	delete from miform where displyorder = #{value}
+	 </delete>
+	 
+	  <update	id="updateMi"	parameterType="com.boreum.service.domain.Miform" >
+	   	UPDATE miform
+	   	<set>
+			testinsp	= #{testinspe:VARCHAR},
+			testfiled 	= #{testfiled:VARCHAR} ,
+			filedcode	= #{filedcodeE:VARCHAR},
+			formattype	= #{formattype:VARCHAR},
+			coltype		= #{coltype:VARCHAR},
+			colcode		= #{colcode:VARCHAR},
+			displyorder	= #{displyorder:VARCHAR},
+	   	</set>
+	   	WHERE displyorder = #{displyorder}
+	 </update>
+	 
+	 <select  id="listMis"  parameterType="com.boreum.service.domain.Miform"	 resultMap="miformMap">
+	  	SELECT*from miform where
+	  	<if test="condition == 'testinsp'">
+	  		testinsp = #{keyword:VARCHAR}
+		</if>
+		<if test="condition == 'testfiled'">
+			testfiled = #{keyword:VARCHAR}
+		</if>
+		<if test="condition == 'filedcode'">
+			filedcode = #{keyword:VARCHAR}
+		</if>
+		<if test="condition == 'formattype'">
+			formattype = #{keyword:VARCHAR}
+		</if>
+	 </select>
+
+	 
+</mapper>
